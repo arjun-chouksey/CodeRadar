@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
 
-const contestSchema = new mongoose.Schema({
+const ContestSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
   platform: {
     type: String,
     required: true,
-    enum: ['Codeforces', 'LeetCode']
-  },
-  name: {
-    type: String,
-    required: true
+    enum: ['codeforces', 'leetcode'],
+    lowercase: true
   },
   url: {
     type: String,
@@ -23,19 +25,28 @@ const contestSchema = new mongoose.Schema({
     required: true
   },
   duration: {
-    type: Number,
+    type: Number,  // Duration in minutes
     required: true
   },
   status: {
     type: String,
-    enum: ['UPCOMING', 'ONGOING', 'COMPLETED'],
+    enum: ['upcoming', 'ongoing', 'completed'],
+    default: 'upcoming'
+  },
+  platformId: {
+    type: String,
     required: true
   }
 }, {
   timestamps: true
 });
 
-// Index for faster queries
-contestSchema.index({ platform: 1, startTime: 1 });
+// Create a compound index to ensure uniqueness
+ContestSchema.index({ platformId: 1, platform: 1 }, { unique: true });
 
-module.exports = mongoose.model('Contest', contestSchema);
+// Create indexes for frequent queries
+ContestSchema.index({ platform: 1 });
+ContestSchema.index({ status: 1 });
+ContestSchema.index({ startTime: 1 });
+
+module.exports = mongoose.model('Contest', ContestSchema);

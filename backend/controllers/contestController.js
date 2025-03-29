@@ -2,20 +2,30 @@ const Contest = require('../models/Contest');
 const codeforcesService = require('../services/codeforcesService');
 const leetcodeService = require('../services/leetcodeService');
 
-// Get all contests
+// Get all contests with optional filters
 const getContests = async (req, res) => {
   try {
-    const { platform, status } = req.query;
-    
-    // Build filter object based on query parameters
+    const { platform, status, sort } = req.query;
     const filter = {};
-    if (platform) filter.platform = platform;
-    if (status) filter.status = status;
+
+    // Apply filters if provided
+    if (platform) {
+      filter.platform = platform.toLowerCase();
+    }
+
+    if (status) {
+      filter.status = status.toLowerCase();
+    }
+
+    // Default sort by start time ascending
+    const sortOption = sort === 'name' ? { name: 1 } : { startTime: 1 };
+
+    const contests = await Contest.find(filter).sort(sortOption);
     
-    const contests = await Contest.find(filter).sort({ startTime: 1 });
     res.json(contests);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching contests:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -23,14 +33,18 @@ const getContests = async (req, res) => {
 const getUpcomingContests = async (req, res) => {
   try {
     const { platform } = req.query;
-    
-    const filter = { status: 'UPCOMING' };
-    if (platform) filter.platform = platform;
-    
+    const filter = { status: 'upcoming' };
+
+    if (platform) {
+      filter.platform = platform.toLowerCase();
+    }
+
     const contests = await Contest.find(filter).sort({ startTime: 1 });
+    
     res.json(contests);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching upcoming contests:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -38,14 +52,18 @@ const getUpcomingContests = async (req, res) => {
 const getOngoingContests = async (req, res) => {
   try {
     const { platform } = req.query;
-    
-    const filter = { status: 'ONGOING' };
-    if (platform) filter.platform = platform;
-    
+    const filter = { status: 'ongoing' };
+
+    if (platform) {
+      filter.platform = platform.toLowerCase();
+    }
+
     const contests = await Contest.find(filter).sort({ endTime: 1 });
+    
     res.json(contests);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching ongoing contests:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -61,6 +79,34 @@ const getCompletedContests = async (req, res) => {
     res.json(contests);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Get contests from specific platform
+const getPlatformContests = async (req, res) => {
+  try {
+    const { platform } = req.params;
+    const { status, sort } = req.query;
+    
+    if (!['codeforces', 'leetcode'].includes(platform.toLowerCase())) {
+      return res.status(400).json({ error: 'Invalid platform' });
+    }
+
+    const filter = { platform: platform.toLowerCase() };
+
+    if (status) {
+      filter.status = status.toLowerCase();
+    }
+
+    // Default sort by start time ascending
+    const sortOption = sort === 'name' ? { name: 1 } : { startTime: 1 };
+
+    const contests = await Contest.find(filter).sort(sortOption);
+    
+    res.json(contests);
+  } catch (error) {
+    console.error(`Error fetching ${req.params.platform} contests:`, error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -84,5 +130,6 @@ module.exports = {
   getUpcomingContests,
   getOngoingContests,
   getCompletedContests,
+  getPlatformContests,
   updateAllContests
 };
