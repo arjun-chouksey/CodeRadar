@@ -48,7 +48,7 @@ npm install
 4. Create a `.env` file in the backend directory with the following variables:
 ```
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+MONGODB_URI=mongodb://localhost:27017/coderadar
 ```
 
 5. Start the development servers
