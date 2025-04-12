@@ -52,7 +52,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <a 
-                    href="https://github.com/your-username/coderadar/issues" 
+                    href="https://github.com/arjun-chouksey/CodeRadar" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:text-blue-400 transition-colors"
