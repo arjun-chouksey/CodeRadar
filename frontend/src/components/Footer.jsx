@@ -42,7 +42,7 @@ const Footer = () => {
               <ul className="text-gray-300 text-sm">
                 <li className="mb-1">
                   <a 
-                    href="https://github.com/your-username/coderadar" 
+                    href="https://github.com/arjun-chouksey/CodeRadar" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:text-blue-400 transition-colors"
