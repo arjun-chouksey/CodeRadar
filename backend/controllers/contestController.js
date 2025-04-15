@@ -6,8 +6,13 @@ const leetcodeService = require('../services/leetcodeService');
 const getContests = async (req, res) => {
   try {
     const { platform, status, sort } = req.query;
-    const filter = {};
+    
 
+    const oneYearAgo= new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    const filter = {
+      startTime: {$gte: oneYearAgo}
+    };
     // Apply filters if provided
     if (platform) {
       filter.platform = platform.toLowerCase();
@@ -33,7 +38,11 @@ const getContests = async (req, res) => {
 const getUpcomingContests = async (req, res) => {
   try {
     const { platform } = req.query;
-    const filter = { status: 'upcoming' };
+    const now = new Date();
+    const filter = {
+      status: 'upcoming',
+      startTime: { $gte: now }
+    };
 
     if (platform) {
       filter.platform = platform.toLowerCase();
@@ -52,7 +61,12 @@ const getUpcomingContests = async (req, res) => {
 const getOngoingContests = async (req, res) => {
   try {
     const { platform } = req.query;
-    const filter = { status: 'ongoing' };
+    const now = new Date();
+    const filter = {
+      status: 'ongoing',
+      startTime: { $lte: now },
+      endTime: { $gte: now }
+    };
 
     if (platform) {
       filter.platform = platform.toLowerCase();
@@ -72,7 +86,7 @@ const getCompletedContests = async (req, res) => {
   try {
     const { platform } = req.query;
     
-    const filter = { status: 'COMPLETED' };
+    const filter = { status: 'completed' };
     if (platform) filter.platform = platform;
     
     const contests = await Contest.find(filter).sort({ startTime: -1 }).limit(50);
